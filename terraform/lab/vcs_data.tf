@@ -20,7 +20,7 @@ data "vsphere_datastore_cluster" "vsdsc" {
 # }
 
 data "vsphere_network" "vnet_my_thing" {
-  name          = "my_vm_portgroup"
+  name          = "${var.my_vnet_name}"
   datacenter_id = "${data.vsphere_datacenter.vsdc.id}"
 }
 

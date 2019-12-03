@@ -61,3 +61,6 @@ terraform plan
 ```bash
 terraform apply
 ```
+
+## How to extend me
+Since the JetBrains vSphere clone module doesnt support vm customisation, we just made a copy of the same ubuntu-18 folder, making a new one like ubuntu-18-k8s-node, (updating the name of the .json manifest as well), and then amending the ansible playbook section to include additional roles. There is a [PR](https://github.com/jetbrains-infra/packer-builder-vsphere/issues/37) open for the inclusion of vm customisation in the vsphere-clone method, but as yet, no interest from the maintainers (seems they dont have the problem, so fair enough). I have no Go chops or I would have a spin at it. Maybe one day.
