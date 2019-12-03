@@ -1,5 +1,5 @@
 # packer-build-staticip
-Example repo to use packer against a VMware environment without DHCP
+Example repo to use packer against a VMware environment without DHCP and then setup instances using terraform and VM Customisation Spec.
 
 ## How to use me
 ### Packer
@@ -33,6 +33,7 @@ _Packer will now take about 15 mins to build your image and mark it as a templat
 #### Pre-reqs
 * Install terraform. We used v1.12.13 from [here](https://www.terraform.io/downloads.html)
 * An account in vSphere with the [correct permissions](https://www.terraform.io/docs/providers/vsphere/) 
+* A VM Customisation spec in vCenter for Ubuntu-18 - we used [this doc](https://docs.vmware.com/en/VMware-vSphere/6.7/com.vmware.vsphere.vm_admin.doc/GUID-9A5093A5-C54F-4502-941B-3F9C0F573A39.html)
 
 #### Process
 1) Enter the terraform/lab directory
