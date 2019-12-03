@@ -24,6 +24,11 @@ variable "vm_folder" {
   default = "lab/my_folder"
 }
 
+variable "my_vnet_name" {
+  default = "my_vm_portgroup"
+}
+
+
 variable "dns_server_1" {
   default = "192.168.1.2"
 }
