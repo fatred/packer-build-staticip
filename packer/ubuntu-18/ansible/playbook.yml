@@ -1,0 +1,12 @@
+---
+# This playbook is used by the packer build to create Kubernetes-ready OS images.
+- name: build image
+  hosts: all
+  become: yes
+  become_user: root
+  become_method: sudo
+  roles:
+  - role: firstboot
+  - role: packer-cleanup
+    when: packer_build_name is defined
+  environment: '{{ proxy_env | default ({}) }}'

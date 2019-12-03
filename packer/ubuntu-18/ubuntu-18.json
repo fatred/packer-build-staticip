@@ -1,0 +1,110 @@
+{
+    "builders": [
+      {
+        "type": "vsphere-iso",
+  
+        "vcenter_server":      "{{user `vcenter_server`}}",
+        "username":            "{{user `username`}}",
+        "password":            "{{user `password`}}",
+        "insecure_connection": "true",
+  
+        "vm_name": "packer-base-u1804",
+        "datastore": "{{user `datastore`}}",
+        "folder": "{{user `folder`}}",
+        "convert_to_template": "true",
+        "cluster": "{{user `cluster`}}",
+        "network": "{{user `network`}}",
+        "boot_order": "disk,cdrom",
+  
+        "guest_os_type": "ubuntu64Guest",
+  
+        "ssh_username": "{{user `ssh_username`}}",
+        "ssh_password": "{{user `ssh_password`}}",
+  
+        "CPUs":             2,
+        "RAM":              2048,
+        "RAM_reserve_all": false,
+  
+        "disk_controller_type":  "pvscsi",
+        "disk_size":        36864,
+        "disk_thin_provisioned": true,
+        "cdrom_type": "sata",
+  
+        "network_card": "vmxnet3",
+  
+        "iso_paths": [
+          "[{{user `iso_datastore`}}] iso/ubuntu/ubuntu-18.04.3-server-amd64.iso"
+        ],
+        "iso_checksum": "7d8e0055d663bffa27c1718685085626cb59346e7626ba3d3f476322271f573e",
+        "iso_checksum_type": "sha256",
+
+        "floppy_files": [
+          "./preseed.cfg",
+          "./authorized_keys.pub",
+          "./ssh-host-keygen.service"
+        ],
+        "boot_command": [
+          "<enter><wait><f6><wait><esc><wait>",
+          "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+          "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+          "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+          "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+          "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+          "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+          "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+          "<bs><bs><bs><bs><bs><bs><bs><bs><bs><bs>",
+          "<bs><bs><bs>",
+          "/install/vmlinuz",
+          " initrd=/install/initrd.gz",
+          " priority=critical",
+          " locale=en_US",
+          " file=/media/preseed.cfg",
+          " netcfg/disable_dhcp=true",
+          " netcfg/disable_autoconfig=true",
+          " netcfg/confirm_static=true",
+          " netcfg/get_ipaddress={{user `net_ip`}}",
+          " netcfg/get_netmask={{user `net_mask`}}",
+          " netcfg/get_gateway={{user `net_gw`}}",
+          " netcfg/get_nameservers={{user `net_dns`}}",
+          " mirror/http/proxy=http://{{user `proxy_ip`}}:8080",
+          " clock-setup/ntp-server={{user `ntp_ip`}}",
+          " netcfg/get_domain string {{user `site`}}.mydomain.net",
+          "<enter>"
+        ]
+      }
+    ],
+  
+    "provisioners": [
+      {
+        "type": "shell",
+        "inline": [
+          "sudo sh -c 'echo \"export http_proxy=http://{{user `proxy_ip`}}:8080\" >> /etc/profile'",
+          "sudo sh -c 'echo \"export https_proxy=http://{{user `proxy_ip`}}:8080\" >> /etc/profile'",
+          "sudo sh -c 'echo \"export no_proxy=127.0.0.1,localhost,.mydomain.net,.svc,.local,/var/run/docker.sock,.sock,sock\" >> /etc/profile'"
+        ]
+      },
+      {
+        "type": "shell",
+        "inline": ["sudo apt dist-upgrade -y"]
+      },
+      {
+        "type":           "ansible",
+        "playbook_file":  "ansible/playbook.yml",
+	      "ansible_env_vars": [
+	        "ANSIBLE_SSH_ARGS='{{user `existing_ansible_ssh_args`}} -o IdentitiesOnly=yes'",
+	        "ANSIBLE_REMOTE_TEMP='/tmp/.ansible/'"
+	      ],
+	      "extra_arguments": [
+          "-vvv",
+          "--extra-vars",
+          "common_upgrade_base=false",
+          "--extra-vars",
+          "proxy_ip={{user `proxy_ip`}}"
+	      ]
+      },
+      {
+        "type": "shell",
+        "inline": ["sudo rm -rf /etc/netplan/*.yaml"]
+      }
+    ]
+  }

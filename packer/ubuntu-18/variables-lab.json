@@ -1,0 +1,20 @@
+{
+    "vcenter_server":"vcs_hostname.mydomain.net",
+    "username":"{{env `PACKER_USER`}}",
+    "password": "{{env `PACKER_PASS`}}",
+    "datastore":"my_datastore_name",
+    "iso_datastore":"my_iso_datastore_name",
+    "folder": "Templates",
+    "host":"an_esx_host.mydomain.net",
+    "cluster": "lab",
+    "network": "lab_portgroup_name",
+    "net_ip": "192.168.1.50",
+    "net_mask": "255.255.255.0",
+    "net_gw": "192.168.1.1",
+    "net_dns": "192.168.1.2",
+    "site": "my_site_subdomain",
+    "proxy_ip": "192.168.1.3",
+    "ntp_ip": "192.168.1.2",
+    "ssh_username": "packer",
+    "ssh_password": "packerpass"
+}

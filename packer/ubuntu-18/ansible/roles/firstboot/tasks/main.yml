@@ -1,0 +1,54 @@
+- name: set firstboot
+  file:
+    dest: /etc/firstboot
+    state: touch
+
+- name: create firstboot script
+  copy:
+    mode: '500'
+    owner: root
+    group: root
+    dest: /bin/myorg-firstboot.sh
+    content: |
+      #!/bin/bash
+
+      # only run if /etc/fisrtboot exists
+      if [ -f /etc/firstboot ]; then
+        # rotate host keys
+        rm -f /etc/ssh/ssh_host_*
+        /usr/bin/ssh-keygen -A
+        
+        # remove the build user from sudoers
+        rm /etc/sudoers.d/packer
+        
+        # delete the build user and home directory
+        userdel --force --remove packer
+
+        # disable the firstboot service
+        systemctl disable firstboot
+
+        # finally remove /etc/firstboot so this process never runs again
+        rm -f /etc/firstboot
+      fi
+
+- name: create firstboot service
+  copy:
+    mode: 644
+    owner: root
+    group: root
+    dest: /etc/systemd/system/firstboot.service
+    content: |
+      [Unit]
+      Description=Myorg Gold Image Firstboot Config
+
+      [Service]
+      Type=oneshot
+      ExecStart=/bin/myorg-firstboot.sh
+
+      [Install]
+      WantedBy=multi-user.target
+
+- name: ensure firstboot service enabled for first boot
+  service:
+    name: firstboot
+    enabled: yes
